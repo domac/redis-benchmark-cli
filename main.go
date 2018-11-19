@@ -346,8 +346,8 @@ func main() {
 		Requests: *number,
 		Clients:  *clients,
 		Pipeline: *pipeline,
-		Stdout:   ioutil.Discard,
-		Stderr:   ioutil.Discard,
+		Stdout:   os.Stdout,
+		Stderr:   os.Stdout,
 	}
 
 	ts := strings.Split(*tests, ",")
