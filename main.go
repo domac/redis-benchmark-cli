@@ -357,38 +357,35 @@ func main() {
 	for _, s := range ts {
 		switch strings.ToLower(s) {
 		case "set":
-
-			value := make([]byte, *valueSize)
-			n := atomic.AddInt64(&kvSetBase, 1)
-
-			nstr := ToStr(n)
-			vstr := ToStr(value)
-
 			Bench("SET", addr, opt, nil, func(buf []byte) []byte {
+				value := make([]byte, *valueSize)
+				n := atomic.AddInt64(&kvSetBase, 1)
+
+				nstr := ToStr(n)
+				vstr := ToStr(value)
 				return AppendCommand(buf, "SET", nstr, vstr)
 			})
 		case "get":
-			n := atomic.AddInt64(&kvGetBase, 1)
-			nstr := ToStr(n)
 			Bench("GET", addr, opt, nil, func(buf []byte) []byte {
+				n := atomic.AddInt64(&kvGetBase, 1)
+				nstr := ToStr(n)
 				return AppendCommand(buf, "GET", nstr)
 			})
 
 		case "hset":
-			value := make([]byte, *valueSize)
-			n := atomic.AddInt64(&hashSetBase, 1)
-
-			nstr := ToStr(n)
-			vstr := ToStr(value)
-
 			Bench("HSET", addr, opt, nil, func(buf []byte) []byte {
+				value := make([]byte, *valueSize)
+				n := atomic.AddInt64(&hashSetBase, 1)
+
+				nstr := ToStr(n)
+				vstr := ToStr(value)
 				return AppendCommand(buf, "HSET", nstr, vstr)
 			})
 
 		case "hget":
-			n := atomic.AddInt64(&hashGetBase, 1)
-			nstr := ToStr(n)
 			Bench("HGET", addr, opt, nil, func(buf []byte) []byte {
+				n := atomic.AddInt64(&hashGetBase, 1)
+				nstr := ToStr(n)
 				return AppendCommand(buf, "HGET", nstr)
 			})
 		default:
