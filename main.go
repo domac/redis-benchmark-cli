@@ -132,6 +132,7 @@ var DefaultOptions = &Options{
 	Stderr:   os.Stderr,
 }
 
+//压测发起
 func Bench(
 	name string,
 	addr string,
@@ -257,7 +258,6 @@ func Bench(
 				fmt.Fprintf(opts.Stdout, "  %d requests finish in %.2f seconds\n", opts.Requests, float64(real)/float64(time.Second))
 				fmt.Fprintf(opts.Stdout, "  %d parallel clients\n", opts.Clients)
 				fmt.Fprintf(opts.Stdout, "  %d bytes payload\n", totalPayload/opts.Requests)
-				fmt.Fprintf(opts.Stdout, "  keep alive: 1\n")
 				fmt.Fprintf(opts.Stdout, "\n")
 				var limit time.Duration
 				var lastper float64
