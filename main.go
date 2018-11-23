@@ -317,15 +317,17 @@ func Bench(
 	}
 }
 
+//参考：http://redisdoc.com/topic/protocol.html
+
 func AppendCommand(buf []byte, args ...string) []byte {
 	buf = append(buf, '*')
 	buf = strconv.AppendInt(buf, int64(len(args)), 10)
 	buf = append(buf, '\r', '\n')
 	for _, arg := range args {
 		buf = append(buf, '$')
-		buf = strconv.AppendInt(buf, int64(len(arg)), 10)
+		buf = strconv.AppendInt(buf, int64(len(arg)), 10) //mykey
 		buf = append(buf, '\r', '\n')
-		buf = append(buf, arg...)
+		buf = append(buf, arg...) //myvalue
 		buf = append(buf, '\r', '\n')
 	}
 	return buf
