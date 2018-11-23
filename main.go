@@ -149,6 +149,8 @@ func Bench(
 	if opts.Stdout == nil {
 		opts.Stdout = ioutil.Discard
 	}
+
+	//相关统计信息
 	var totalPayload uint64
 	var count uint64
 	var duration int64
@@ -156,12 +158,13 @@ func Bench(
 	rpcex := opts.Requests % opts.Clients
 	var tstop int64
 	remaining := int64(opts.Clients)
+
 	errs := make([]error, opts.Clients)
 	durs := make([][]time.Duration, opts.Clients)
 	conns := make([]net.Conn, opts.Clients)
 
 	for i := 0; i < opts.Clients; i++ {
-		crequests := rpc
+		crequests := rpc //每个客户端需要负责请求命令的数目
 		if i == opts.Clients-1 {
 			crequests += rpcex
 		}
@@ -186,6 +189,7 @@ func Bench(
 		conns[i] = conn
 	}
 
+	//统计开始
 	tstart := time.Now()
 	for i := 0; i < opts.Clients; i++ {
 		crequests := rpc
@@ -202,14 +206,21 @@ func Bench(
 			}
 			err := func() error {
 				var buf []byte
+
+				//conn buff reader
 				rd := bufio.NewReader(conn)
+
+				//pipeline处理
 				for i := 0; i < crequests; i += opts.Pipeline {
 					n := opts.Pipeline
 					if i+n > crequests {
 						n = crequests - i
 					}
+
+					//清除上一次的buffer
 					buf = buf[:0]
 					for i := 0; i < n; i++ {
+						//返回封装的redis协议信息
 						buf = fill(buf)
 					}
 					atomic.AddUint64(&totalPayload, uint64(len(buf)))
@@ -218,9 +229,13 @@ func Bench(
 					if err != nil {
 						return err
 					}
+
+					//获取响应信息
 					if err := readResp(rd, n, opts); err != nil {
 						return err
 					}
+
+					//统计耗时
 					stop := time.Since(start)
 					for j := 0; j < n; j++ {
 						durs[client][i+j] = stop / time.Duration(n)
@@ -256,11 +271,13 @@ func Bench(
 			} else {
 				fmt.Fprintf(opts.Stdout, "\r====== %s ======\n", name)
 				fmt.Fprintf(opts.Stdout, "  %d requests finish in %.2f seconds\n", opts.Requests, float64(real)/float64(time.Second))
-				fmt.Fprintf(opts.Stdout, "  %d parallel clients\n", opts.Clients)
+				fmt.Fprintf(opts.Stdout, "  %d requests clients\n", opts.Clients)
 				fmt.Fprintf(opts.Stdout, "  %d bytes payload\n", totalPayload/opts.Requests)
 				fmt.Fprintf(opts.Stdout, "\n")
 				var limit time.Duration
 				var lastper float64
+
+				//打印延时百分比
 				for {
 					limit += time.Millisecond
 					var hits, count int
